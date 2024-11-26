@@ -1,6 +1,6 @@
-﻿# MOSTINDIA-STAFF-MANAGEMENT-SYSTEM
+﻿# SK Enterprises-STAFF-MANAGEMENT-SYSTEM
 
-Mostindia staff management system
+ SK Enterprises staff management system
 
 developed using django framework 
 
