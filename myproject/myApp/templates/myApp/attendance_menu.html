@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{% static 'myproject/images/icon.svg' %}" type="image/x-icon">
+    <title>SK enterprises</title>
+    <link rel="stylesheet" href="{% static 'myproject/css/attendance_menu.css' %}">
+    <header class="u-clearfix u-header u-header" id="sec-7bf3">
+        <div class="u-clearfix u-sheet u-sheet-1">
+            <div style="margin-top: 0px; display: flex; align-items: center; justify-content: space-between;">
+                <img src="{% static 'myproject/images/logo.png' %}" class="u-logo-image u-logo-image-1" style="width: 100px; height: auto ; padding-left: 80px;">
+                <nav style="float: right;">
+                    <a href="{% url 'myApp:home' %}" style="margin-left: 1100px; top: 10px;">
+                        <img src="{% static 'myproject/images/home_icon.png' %}" alt="Home" style="width: 24px; height: 24px;">
+                    </a>
+                    <a href="{% url 'myApp:home' %}" style="margin-left: 10px; top: 10px;">
+                        <img src="{% static 'myproject/images/back.png' %}" alt="Another Icon" style="width: 24px; height: 24px;">
+                    </a>
+                </nav>
+        </div>
+        </header>
+</head>
+<body>
+    
+    <div class="menu">
+        <h1 style="font-family: 'Times New Roman', Times, serif;">Attendance Menu</h1>
+        <a href="{% url 'myApp:view_attendance' %}">Day-wise Attendance</a>
+        <a href="{% url 'myApp:weekly_attendance' %}">Weekly Attendance</a>
+        <a href="{% url 'myApp:monthly_attendance' %}">Monthly Attendance</a>
+    </div>
+</body>
+</html>
