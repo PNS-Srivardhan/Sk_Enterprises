@@ -638,9 +638,9 @@ def generate_pay_slip(request, id_no):
     width, height = letter
 
     # Add the company logo
-    logo_path = finders.find('myproject/images/logopdf.jpg')  # Ensure the logo is in the 'static/images' folder
+    logo_path = finders.find('myproject/images/logo.png')  # Ensure the logo is in the 'static/images' folder
     if logo_path:  # Check if logo is found
-        p.drawImage(logo_path, 50, height - 100, width=120, height=50)
+        p.drawImage(logo_path, 50, height - 100 , width=120, height=50)
 
     # Title and Company Information
     p.setFont("Helvetica", 12)
