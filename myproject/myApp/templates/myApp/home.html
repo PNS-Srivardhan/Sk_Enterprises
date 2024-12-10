@@ -36,8 +36,10 @@
                       <a href="{% url 'myApp:staff_profiles' %}">PROFILES</a>
                       <a href="{% url 'myApp:manage_staff' %}">MANAGE STAFF</a>
                       {% if user.is_superuser %}
-                      <a href="{% url 'myApp:add_staff' %}">ADD STAFF</a>
                       <a href="{% url 'myApp:leave_limit' %}">STAFF LEAVE DATA</a>
+                        <a href="{% url 'myApp:add_staff' %}" style="font-style: italic;">ADD STAFF</a>
+
+
                       {% endif %}
                     </div>
                   </div>              
@@ -60,6 +62,7 @@
                     <div id="settingsDropdown" class="dropdown-content">
                         {% if user.is_superuser %}
                         <a href="{% url 'myApp:master' %}">ADD USER</a>
+                        <a href="{}">UPDATE </a>
                         {% endif %}
                         <a href="{% url 'myApp:login' %}">LOGOUT</a>
                     </div>
@@ -183,7 +186,7 @@
         
 </body>
 <footer style="background-color: #f1f1f1; padding: 20px; text-align: center; margin-top: 20px;">
-  <p>&copy; 2024 SK enterprises. All rights reserved. | Designed by @update.com</p>
+  <p>&copy; 2024 SK enterprises. All rights reserved. </p>
   <p>
     <a href="#home">Home</a> |
     <a href="">About</a> |

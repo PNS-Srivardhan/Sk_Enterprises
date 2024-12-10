@@ -286,7 +286,8 @@ def add_staff(request):
             conveyance=request.POST['conveyance'],
             spl_allowance=request.POST['spl_allowance'],
             photo=request.FILES.get('photo', None), 
-            totalleaves=request.POST['totalleaves'],
+            totalleaves=request.POST.get('totalleaves', '0.0'),
+
         )
         staff.save()
         messages.success(request, 'Staff member added successfully!')
@@ -623,6 +624,7 @@ from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from .models import Staff
+from num2words import num2words
 
 def generate_pay_slip(request, id_no):
     # Fetch the staff member based on the id_no
@@ -640,7 +642,7 @@ def generate_pay_slip(request, id_no):
     # Add the company logo
     logo_path = finders.find('myproject/images/logo.png')  # Ensure the logo is in the 'static/images' folder
     if logo_path:  # Check if logo is found
-        p.drawImage(logo_path, 50, height - 100 , width=120, height=50)
+        p.drawImage(logo_path, 50, height - 100, width=120, height=50)
 
     # Title and Company Information
     p.setFont("Helvetica", 12)
@@ -687,6 +689,13 @@ def generate_pay_slip(request, id_no):
     p.setFont("Helvetica", 10)
     p.drawString(160, height - 240, f"{date.today().strftime('%d/%m/%Y')}")
 
+    p.setFont("Helvetica", 10)
+    p.setFillColor(colors.grey)
+    p.drawString(65, height - 260, f"Designation            :") 
+    p.setFillColor(colors.black)
+    p.setFont("Helvetica", 10)
+    p.drawString(160, height - 260, f"{staff_member.designation}")
+
      # Calculate the total salary
     # Calculate the number of days the staff member was in Onsite mode in the current month
     year = date.today().year
@@ -718,19 +727,19 @@ def generate_pay_slip(request, id_no):
         attendance_date__month=month
     ).count()
 
+#***********************calculate the total salary********************************
 
-    total_deductions = staff_member.leave_deduction * paid_leave_days
+    total_deductions = int(staff_member.leave_deduction * paid_leave_days)+int(staff_member.income_tax + staff_member.pf)+int(staff_member.advance_amount)
 
-    total_salary = (staff_member.basic_salary + staff_member.hra + staff_member.conveyance + staff_member.spl_allowance + total_incentive) - total_deductions
+    leave_deduction = int(staff_member.leave_deduction * paid_leave_days)
 
-    salary = (staff_member.basic_salary + staff_member.hra + staff_member.conveyance + staff_member.spl_allowance + total_incentive) 
+    
 
-        
+    total_salary = int((staff_member.basic_salary + staff_member.hra + staff_member.conveyance + staff_member.spl_allowance + total_incentive) - total_deductions)
 
+    salary = int((staff_member.basic_salary + staff_member.hra + staff_member.conveyance + staff_member.spl_allowance + total_incentive))
 
-    # Calculate the total salary
-
-
+#***********************************************************************************
 
 
     # Draw a dotted box around the salary information
@@ -786,9 +795,9 @@ def generate_pay_slip(request, id_no):
     p.setDash()  # Reset to solid line
     # Earnings Details
     p.setFont("Helvetica", 10)
-    p.drawString(60, height - 360, "Basic  ")
+    p.drawString(60, height - 360, "Basic Salary ")
     p.setFont("Helvetica-Bold", 10)
-    p.drawString(210, height - 360, f"{staff_member.basic_salary: ,.0f}")
+    p.drawString(210, height - 360, f"{staff_member.basic_salary:,.0f}")
     p.setFont("Helvetica", 10)
     p.drawString(60, height - 380, "House Rent Allowance ")
     p.setFont("Helvetica-Bold", 10)
@@ -815,15 +824,19 @@ def generate_pay_slip(request, id_no):
     p.setFont("Helvetica", 10)
     p.drawString(310, height - 360, "Income Tax")
     p.setFont("Helvetica-Bold", 10)
-    p.drawString(460, height - 360, "0")
+    p.drawString(460, height - 360, f"{staff_member.income_tax:,.0f}")
     p.setFont("Helvetica", 10)
     p.drawString(310, height - 380, "Provident Fund")
     p.setFont("Helvetica-Bold", 10)
-    p.drawString(460, height - 380, "0")
+    p.drawString(460, height - 380, f"{staff_member.pf:,.0f}")
     p.setFont("Helvetica", 10)
     p.drawString(310, height - 400, "Leave deduction")
     p.setFont("Helvetica-Bold", 10)
-    p.drawString(460, height - 400, f"{total_deductions:,.0f}")
+    p.drawString(460, height - 400, f"{leave_deduction:,.0f}")
+    p.setFont("Helvetica", 10)
+    p.drawString(310, height - 420, "Advance Amount")
+    p.setFont("Helvetica-Bold", 10)
+    p.drawString(460, height - 420, f"{staff_member.advance_amount:,.0f}")
 
 
     p.drawString(310, height - 470  , "Total Deductions")
@@ -832,16 +845,17 @@ def generate_pay_slip(request, id_no):
 
     # Net Payable
     p.setFont("Helvetica-Bold", 12)
-    p.drawString(60, height - 540, "TOTAL NET PAYABLE")
-    p.setFont("Helvetica", 9)
-    p.drawString(60, height - 550, "Gross Earnings - Total Deductions")
-    p.setFont("Helvetica-Bold", 14)
+    p.drawString(60, height - 530, "TOTAL NET PAYABLE")
+    p.setFont("Helvetica-Oblique", 10)
+    p.drawString(60, height - 550, f"Amount:{num2words(total_salary, to='cardinal', lang='en').capitalize()} Rupees only")
+
+    
     
     # Set background color for the amount only
-    amount_x = 460
-    amount_y = height - 560
-    amount_width = 90
-    amount_height = 35
+    amount_x = 440
+    amount_y = height - 560  # Moved downward
+    amount_width = 110  # Extended right side
+    amount_height = 50  # top and bottom
     
     p.setFillColor(colors.lightgreen)
     p.setFillAlpha(0.5)  # Set opacity to 50%
@@ -850,12 +864,13 @@ def generate_pay_slip(request, id_no):
     # Reset fill color to black for text
     p.setFillAlpha(1)  # Reset opacity to 100%
     p.setFillColor(colors.black)
-    p.drawString(470, height - 548, f"{total_salary:,.2f}")
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(470, height - 540, f"{total_salary:,.2f}")
 
     # Draw a box around the Net Payable section
     p.setStrokeColor(colors.black)
     p.setLineWidth(1)
-    p.roundRect(50, height - 560, 500, 35, 10)
+    p.roundRect(50, height - 560, 500, 50, 10)
 
     p.showPage()
     p.save()
@@ -876,6 +891,7 @@ from django.contrib.staticfiles import finders
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from num2words import num2words
 
 
 def view_pay_slip(request, id_no):
@@ -911,7 +927,7 @@ def view_pay_slip(request, id_no):
     ).count()
 
 
-    total_deductions = staff_member.leave_deduction * paid_leave_days
+    total_deductions = (staff_member.leave_deduction * paid_leave_days)+staff_member.income_tax + staff_member.pf+staff_member.advance_amount
 
 
     # Calculate the total salary
@@ -919,6 +935,7 @@ def view_pay_slip(request, id_no):
 
     pay_amount  = total_salary - total_deductions
     
+
     
 
     # Calculate the number of leave days in the current month for the staff member
@@ -972,6 +989,9 @@ def edit_earnings(request, id_no):
         staff.spl_allowance = request.POST['spl_allowance']
         staff.incentive = request.POST['incentive']
         staff.leave_deduction = request.POST['leave_deduction']
+        staff.income_tax = request.POST['income_tax']
+        staff.pf = request.POST['pf']
+        staff.advance_amount = request.POST['advance_amount']
         
         staff.save()
         messages.success(request, 'Data updated successfully!')
@@ -998,11 +1018,6 @@ def send_pay_slip(request, id_no):
 
         messages.success(request, 'Pay slip sent successfully!')
         return redirect('myApp:pay_slip')
-
-
-
-
-
 
 
 
