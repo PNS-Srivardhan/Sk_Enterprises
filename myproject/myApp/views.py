@@ -728,16 +728,17 @@ def generate_pay_slip(request, id_no):
     ).count()
 
 #***********************calculate the total salary********************************
+    salary = int((staff_member.basic_salary + staff_member.hra + staff_member.conveyance + staff_member.spl_allowance + total_incentive))
 
     total_deductions = int(staff_member.leave_deduction * paid_leave_days)+int(staff_member.income_tax + staff_member.pf)+int(staff_member.advance_amount)
 
     leave_deduction = int(staff_member.leave_deduction * paid_leave_days)
 
-    
-
     total_salary = int((staff_member.basic_salary + staff_member.hra + staff_member.conveyance + staff_member.spl_allowance + total_incentive) - total_deductions)
-
-    salary = int((staff_member.basic_salary + staff_member.hra + staff_member.conveyance + staff_member.spl_allowance + total_incentive))
+    
+    # Reset advance amount to 0 after calculations
+    staff_member.advance_amount = 0
+    staff_member.save()
 
 #***********************************************************************************
 
